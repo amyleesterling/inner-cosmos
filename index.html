@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inner Cosmos — explore the hidden world inside a brain</title>
+  <meta name="description" content="A collection of experiences built from real connectomics data. Zoom from a whole brain to a single synapse, meet real neurons, or watch the cosmos unfold on a museum wall." />
+  <link rel="icon" href="brain-favicon.png" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Inner Cosmos" />
+  <meta property="og:description" content="Explore the hidden world inside a brain. Real connectomics data, real neurons." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --ink-950: #04060c;
+      --ink-900: #070b16;
+      --ink-800: #0c1322;
+      --glow-cyan: #7ee0ff;
+      --glow-magenta: #ff7ee0;
+      --glow-violet: #b78bff;
+      --glow-warm: #ffd9a8;
+      --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+      --font-display: "Fraunces", "Inter", serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--ink-950);
+      color: rgb(245 245 250);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+
+    ::selection { background: var(--glow-cyan); color: var(--ink-950); }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ---- Fixed cosmic background layers ---- */
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: radial-gradient(ellipse at center, rgba(28,39,66,0.55) 0%, rgba(4,6,12,1) 70%);
+    }
+    #cosmos { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+    .vignette-top, .vignette-bottom {
+      position: fixed; left: 0; right: 0; height: 10rem; z-index: 5; pointer-events: none;
+    }
+    .vignette-top { top: 0; background: linear-gradient(to bottom, var(--ink-950), transparent); }
+    .vignette-bottom { bottom: 0; background: linear-gradient(to top, var(--ink-950), transparent); }
+
+    /* ---- Header ---- */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 30;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.75rem;
+    }
+    .brand { display: flex; align-items: center; gap: 0.65rem; opacity: 0.92; }
+    .brand .glow-wrap { position: relative; width: 1.75rem; height: 1.75rem; display: inline-flex; align-items: center; justify-content: center; }
+    .brand .glow-wrap::before {
+      content: ""; position: absolute; inset: 0; border-radius: 999px;
+      background: #a87ee0; opacity: 0.55; filter: blur(8px);
+    }
+    .brand img { position: relative; width: 1.75rem; height: 1.75rem; object-fit: contain; }
+    .brand span.name { font-family: var(--font-display); letter-spacing: 0.02em; font-size: 15px; color: rgba(255,255,255,0.9); }
+
+    /* ---- Content ---- */
+    main { position: relative; z-index: 10; }
+
+    .hero {
+      min-height: 78vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 7rem 1.5rem 2rem;
+    }
+    .eyebrow {
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4em;
+      color: rgba(255,255,255,0.5); margin-bottom: 1.75rem;
+    }
+    h1 {
+      font-family: var(--font-display); font-weight: 300; line-height: 1.05;
+      font-size: clamp(2.1rem, 7vw, 5.6rem); max-width: 60rem; text-wrap: balance;
+    }
+    h1 .accent {
+      font-style: italic; font-weight: 400;
+      background: linear-gradient(90deg, var(--glow-cyan), var(--glow-violet), var(--glow-magenta));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .subtitle {
+      margin-top: 2rem; max-width: 40rem; text-wrap: balance;
+      color: rgba(255,255,255,0.65); font-weight: 300; line-height: 1.7;
+      font-size: clamp(0.95rem, 1.4vw, 1.2rem);
+    }
+    .subtitle .accent {
+      background: linear-gradient(90deg, #23baff, #5b7cff, #8aa6ff);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      font-weight: 400; white-space: nowrap;
+    }
+
+    /* ---- Card grid ---- */
+    .experiences {
+      max-width: 72rem; margin: 0 auto; padding: 2rem 1.5rem 1rem;
+    }
+    .section-label {
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4em;
+      color: rgba(255,255,255,0.4); text-align: center; margin-bottom: 2.25rem;
+    }
+    .grid-primary {
+      display: grid; gap: 1.1rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .glass {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(20px) saturate(140%);
+      -webkit-backdrop-filter: blur(20px) saturate(140%);
+    }
+
+    .card {
+      position: relative; border-radius: 1.25rem; overflow: hidden;
+      padding: 1.6rem 1.6rem 1.7rem; min-height: 15.5rem;
+      display: flex; flex-direction: column; justify-content: space-between;
+      transition: transform .5s cubic-bezier(0.16,1,0.3,1), border-color .5s, box-shadow .5s;
+    }
+    .card::after {
+      content: ""; position: absolute; inset: 0; border-radius: inherit;
+      opacity: 0; transition: opacity .5s; pointer-events: none;
+      background: radial-gradient(120% 90% at 15% 0%, var(--tint, rgba(126,224,255,0.16)), transparent 60%);
+    }
+    .card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.18); box-shadow: 0 24px 60px -30px var(--tint, rgba(126,224,255,0.5)); }
+    .card:hover::after { opacity: 1; }
+
+    .card .kicker {
+      font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.28em;
+      color: rgba(255,255,255,0.45); margin-bottom: 0.9rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .card .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--tint-solid, var(--glow-cyan)); box-shadow: 0 0 10px var(--tint-solid, var(--glow-cyan)); }
+    .card h3 { font-family: var(--font-display); font-weight: 400; font-size: 1.55rem; line-height: 1.15; }
+    .card p { margin-top: 0.65rem; color: rgba(255,255,255,0.6); font-weight: 300; line-height: 1.6; font-size: 0.92rem; }
+    .card .go {
+      margin-top: 1.1rem; display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.85rem; color: rgba(255,255,255,0.8); font-weight: 500;
+    }
+    .card .go svg { transition: transform .3s; }
+    .card:hover .go svg { transform: translateX(3px); }
+
+    .card.feature { grid-column: 1 / -1; min-height: auto; padding: 2rem; }
+    @media (min-width: 720px) {
+      .card.feature { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; align-items: center; }
+      .card.feature .feature-copy { max-width: 34rem; }
+    }
+    .card.feature h3 { font-size: clamp(1.9rem, 3vw, 2.6rem); }
+    .card.feature p { font-size: 1rem; }
+    .feature-sublinks { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
+    .pill {
+      font-size: 0.78rem; padding: 0.4rem 0.85rem; border-radius: 999px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7); transition: background .3s, color .3s, border-color .3s;
+    }
+    .pill:hover { background: rgba(255,255,255,0.12); color: #fff; border-color: rgba(255,255,255,0.25); }
+
+    /* ---- Secondary row ---- */
+    .grid-secondary {
+      display: grid; gap: 1.1rem; margin-top: 1.1rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .card.small { min-height: 11rem; }
+    .card.small h3 { font-size: 1.25rem; }
+
+    /* ---- Footer ---- */
+    footer {
+      position: relative; z-index: 10;
+      padding: 3.5rem 1.5rem 3rem; text-align: center;
+      font-size: 0.75rem; color: rgba(255,255,255,0.35); letter-spacing: 0.05em;
+    }
+    footer a { transition: color .3s; }
+    footer a:hover { color: rgba(255,255,255,0.7); }
+    footer .sep { margin: 0 0.5rem; }
+
+    /* Entrance */
+    .reveal { opacity: 0; transform: translateY(14px); animation: rise 1s cubic-bezier(0.16,1,0.3,1) forwards; }
+    @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+    .d1 { animation-delay: .1s; } .d2 { animation-delay: .25s; } .d3 { animation-delay: .4s; }
+    .d4 { animation-delay: .55s; } .d5 { animation-delay: .7s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { animation: none; opacity: 1; transform: none; }
+      #cosmos { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <canvas id="cosmos"></canvas>
+  <div class="vignette-top"></div>
+  <div class="vignette-bottom"></div>
+
+  <header>
+    <a class="brand" href="index.html" aria-label="Inner Cosmos — home">
+      <span class="glow-wrap"><img src="brain-favicon.png" alt="" /></span>
+      <span class="name">Inner Cosmos</span>
+    </a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow reveal d1">Inner Cosmos</p>
+      <h1 class="reveal d2">Explore the hidden world <span class="accent">inside a brain.</span></h1>
+      <p class="subtitle reveal d3">
+        A small collection of experiences built from <span class="accent">real connectomics data.</span>
+        Zoom from a whole brain to a single synapse, meet a neuron, or watch it all unfold on a museum wall. No log-in.
+      </p>
+    </section>
+
+    <section class="experiences">
+      <p class="section-label reveal d1">Ways in</p>
+
+      <div class="grid-primary">
+        <!-- Feature: the main interactive site -->
+        <a class="card feature glass reveal d1" href="https://amyleesterling.github.io/inner_cosmos/"
+           style="--tint: rgba(183,139,255,0.18); --tint-solid: var(--glow-violet);">
+          <div class="feature-copy">
+            <div class="kicker"><span class="dot"></span>The main experience</div>
+            <h3>Inner Cosmos</h3>
+            <p>The full interactive site. An eight-stage zoom from the human brain down to a single synapse, a gallery of real MICrONS neurons you can meet one by one, live neural activity, and a strip of quiet wonder.</p>
+            <div class="feature-sublinks">
+              <span class="pill">Explorer</span>
+              <span class="pill">Meet a Neuron</span>
+              <span class="pill">Activity</span>
+              <span class="pill">Brains by the Numbers</span>
+            </div>
+          </div>
+          <div class="go" style="justify-self: start;">Enter
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </a>
+
+        <!-- Kids -->
+        <a class="card glass reveal d2" href="https://amyleesterling.github.io/inner_cosmos/kindergarten/1"
+           style="--tint: rgba(255,217,168,0.18); --tint-solid: var(--glow-warm);">
+          <div>
+            <div class="kicker"><span class="dot"></span>For young explorers</div>
+            <h3>Neuroscience for Kids</h3>
+            <p>A gentle, illustrated tour of the brain — the same real neurons, told simply, one wonder at a time.</p>
+          </div>
+          <div class="go">Start the tour
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </a>
+
+        <!-- Museum wall -->
+        <a class="card glass reveal d3" href="https://amyleesterling.github.io/science-experiment/attract"
+           style="--tint: rgba(126,224,255,0.18); --tint-solid: var(--glow-cyan);">
+          <div>
+            <div class="kicker"><span class="dot"></span>Museum / wall display</div>
+            <h3>The Cosmos, on a Wall</h3>
+            <p>A non-interactive attract loop built for a 3628&#215;1600 screen. Sit back and let the guided zoom play, endlessly. Best full-screen.</p>
+          </div>
+          <div class="go">Watch it play
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </a>
+      </div>
+
+      <p class="section-label reveal d1" style="margin-top: 3.5rem;">Go deeper</p>
+      <div class="grid-secondary">
+        <a class="card small glass reveal d1" href="https://amyleesterling.github.io/science-experiment/scale-test"
+           style="--tint: rgba(255,126,224,0.16); --tint-solid: var(--glow-magenta);">
+          <div>
+            <div class="kicker"><span class="dot"></span>Scale</div>
+            <h3>Scales of the Brain</h3>
+            <p>How big is a neuron, really? A test bench for the "by the numbers" comparison.</p>
+          </div>
+          <div class="go">Open
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </a>
+
+        <a class="card small glass reveal d2" href="https://amyleesterling.github.io/science-experiment/citations"
+           style="--tint: rgba(126,224,255,0.16); --tint-solid: var(--glow-cyan);">
+          <div>
+            <div class="kicker"><span class="dot"></span>Reference</div>
+            <h3>Sources &amp; Citations</h3>
+            <p>Where every number comes from — datasets, papers, and the wiring-length estimate, shown transparently.</p>
+          </div>
+          <div class="go">Read the sources
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <footer class="reveal d3">
+      Data:
+      <a href="https://www.microns-explorer.org/" target="_blank" rel="noreferrer">MICrONS</a>
+      <span class="sep">&#183;</span>
+      <a href="https://www.flywire.ai/" target="_blank" rel="noreferrer">FlyWire</a>
+      <span class="sep">&#183;</span>
+      Built with neuroglancer
+    </footer>
+  </main>
+
+  <script>
+    // Drifting neuron/particle field — nodes that softly connect when near,
+    // echoing the connectomics theme without any heavy 3D.
+    (function () {
+      const canvas = document.getElementById("cosmos");
+      if (!canvas || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const ctx = canvas.getContext("2d");
+      let w, h, dpr, nodes;
+
+      const TINTS = [
+        [126, 224, 255], // cyan
+        [183, 139, 255], // violet
+        [255, 126, 224], // magenta
+        [255, 217, 168], // warm
+      ];
+
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = canvas.width = Math.floor(innerWidth * dpr);
+        h = canvas.height = Math.floor(innerHeight * dpr);
+        canvas.style.width = innerWidth + "px";
+        canvas.style.height = innerHeight + "px";
+        const count = Math.round((innerWidth * innerHeight) / 22000);
+        nodes = Array.from({ length: Math.max(40, Math.min(120, count)) }, () => {
+          const t = TINTS[(Math.random() * TINTS.length) | 0];
+          return {
+            x: Math.random() * w, y: Math.random() * h,
+            vx: (Math.random() - 0.5) * 0.12 * dpr,
+            vy: (Math.random() - 0.5) * 0.12 * dpr,
+            r: (Math.random() * 1.4 + 0.6) * dpr,
+            c: t,
+            tw: Math.random() * Math.PI * 2, // twinkle phase
+          };
+        });
+      }
+
+      const LINK = 130; // px in css space
+      function frame(now) {
+        ctx.clearRect(0, 0, w, h);
+        const link = LINK * dpr;
+        for (let i = 0; i < nodes.length; i++) {
+          const a = nodes[i];
+          a.x += a.vx; a.y += a.vy;
+          if (a.x < 0) a.x += w; else if (a.x > w) a.x -= w;
+          if (a.y < 0) a.y += h; else if (a.y > h) a.y -= h;
+          // links
+          for (let j = i + 1; j < nodes.length; j++) {
+            const b = nodes[j];
+            const dx = a.x - b.x, dy = a.y - b.y;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < link * link) {
+              const alpha = (1 - Math.sqrt(d2) / link) * 0.16;
+              ctx.strokeStyle = `rgba(${a.c[0]},${a.c[1]},${a.c[2]},${alpha})`;
+              ctx.lineWidth = 0.6 * dpr;
+              ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+            }
+          }
+        }
+        // nodes (drawn after links so they sit on top)
+        for (const a of nodes) {
+          const tw = 0.55 + 0.45 * Math.sin(now * 0.0012 + a.tw);
+          ctx.beginPath();
+          ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${a.c[0]},${a.c[1]},${a.c[2]},${0.5 * tw})`;
+          ctx.shadowBlur = 8 * dpr;
+          ctx.shadowColor = `rgba(${a.c[0]},${a.c[1]},${a.c[2]},0.6)`;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+        requestAnimationFrame(frame);
+      }
+
+      resize();
+      addEventListener("resize", resize);
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>
